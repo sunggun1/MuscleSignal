@@ -1,0 +1,8 @@
+{
+    "db": {
+            "url" : "mongodb+srv://admin:passwordpassword@cluster0.yf3fwzj.mongodb.net/?retryWrites=true&w=majority",
+            "name" :"mydb",
+            "user" :"",
+            "password" :""
+    }
+}
