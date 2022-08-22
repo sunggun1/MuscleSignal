@@ -1,7 +1,9 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk,createSelector } from "@reduxjs/toolkit";
 import { Alert } from "react-native";
 import backendApi from "../../api/backendApi";
 import SQLite from 'react-native-sqlite-storage';
+import { RootState } from "../store/store";
+import { Selector } from "react-redux";
 
 export interface muscleProp {
     id : string;
@@ -85,10 +87,16 @@ const muscleSlice = createSlice({
     initialState : initialState,
     reducers: {
         getAllMuscle: (state, action)=>{
-            state = action.payload;
+            state.position = action.payload.position;
+            state.result = action.payload.result;
         }
     }
 });
+
+export const muscleSelector = (state:RootState):Muscle => state.muscle;
+export const musclePowerSelector = createSelector(
+  muscleSelector,(muscle:Muscle)=>muscle.position.map((item2)=>{return item2.power})
+);
 
 export const muscleActions = muscleSlice.actions;
 export default muscleSlice.reducer;

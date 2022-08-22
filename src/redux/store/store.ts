@@ -1,11 +1,13 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import authSlice from "../slices/authSlice";
 import musclePositionSlice from "../slices/musclePositionSlice";
+import muscleSlice from "../slices/muscleSlice";
 
 const store = configureStore({
     reducer: {
         auth : authSlice,
-        musclePos: musclePositionSlice
+        musclePos: musclePositionSlice,
+        muscle:muscleSlice
     }
 })
 

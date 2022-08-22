@@ -150,7 +150,7 @@ const MusclePositionScreen = () => {
                             <ScrollView horizontal={true} contentContainerStyle={styles.scrollViewContentContainerStyle}>
                                 <View style={styles.ScrollContainer}>
                                     <View style = {{flex : 3 }}>
-                                        <TouchableOpacity onPress={()=>{navigation.navigate('MuscleDetail',{positionName : item.positionName, id : item.id});}} style={styles.touchableOpacityStyle}>
+                                        <TouchableOpacity onPress={()=>{navigation.navigate('MuscleDetail',{positionName : item.positionName, musclePositionId : item.id});}} style={styles.touchableOpacityStyle}>
                                             <Text style={{ fontSize: 20 , color: 'black'}}>
                                                 {item.positionName}
                                             </Text>

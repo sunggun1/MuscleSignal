@@ -23,7 +23,6 @@ import SignupScreen from './src/screens/SignupScreen';
 import MusclePositionScreen from './src/screens/MusclePositionScreen';
 import MuscleDetailScreen from './src/screens/MuscleDetailScreen';
 import {RouteProp} from '@react-navigation/native'
-import SQLite from 'react-native-sqlite-storage';
 
 type RootStackParamList = {
   Login: undefined;
@@ -31,7 +30,7 @@ type RootStackParamList = {
   MusclePosition : undefined;
   MuscleDetail : {
     positionName : string;
-    id : string;
+    musclePositionId : string;
   }
 };
 
