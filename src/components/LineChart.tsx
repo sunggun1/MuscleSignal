@@ -9,7 +9,8 @@ import {
   G,
   Text,
 } from "react-native-svg";
-import { AreaChart } from "react-native-svg-charts";
+import { View } from "react-native";
+import { AreaChart, XAxis,YAxis } from "react-native-svg-charts";
 
 const Shadow = ({ line }:any) => (
   <Path
@@ -28,7 +29,7 @@ const Decorator = ({ x, y, data }:any) => {
     if (data.length - 1 === index)
       return (
         <G key={index}>
-          <Text
+          {/* <Text
             x={x(index)-10}
             y={y(value)}
             fontSize="26"
@@ -37,7 +38,7 @@ const Decorator = ({ x, y, data }:any) => {
             textAnchor="middle"
           >
             {data[index]}
-          </Text>
+          </Text> */}
           <G fill="none" fillRule="evenodd">
             <Circle
               strokeOpacity={0.199}
@@ -62,7 +63,7 @@ const Decorator = ({ x, y, data }:any) => {
           r={4}
           fill={"#4D7BF3"}
         />
-        <Text
+        {/* <Text
           x={x(index) - 10}
           y={y(value) - 10}
           fontSize="16"
@@ -70,7 +71,7 @@ const Decorator = ({ x, y, data }:any) => {
           textAnchor="middle"
         >
           {data[index]}
-        </Text>
+        </Text> */}
       </G>
     );
   });
@@ -89,18 +90,33 @@ const Gradient = ({ index }:any) => (
   </Defs>
 );
 
+
+
 export default ({ containerStyle, data }:any) => (
-  <AreaChart
-    style={containerStyle}
-    data={data}
-    svg={{ fill: "url(#gradient)" }}
-    contentInset={{ top: 50, bottom: 14, right: 16, left: 16 }}
-  >
-    <Shadow />
-    <Line />
-    <Gradient />
-    <Decorator />
-  </AreaChart>
+  <View >
+    <View style={{ flexDirection: 'row' }}>
+      <YAxis
+          data={data}
+          contentInset={ {top : 50 , bottom : 14  } }
+          svg={{
+            fill: 'grey',
+            fontSize: 10,
+          }}
+          formatLabel={ value => value }
+          />
+      <AreaChart
+        style={containerStyle}
+        data={data}
+        svg={{ fill: "url(#gradient)" }}
+        contentInset={{ top: 50, bottom: 14, right: 16, left: 16 }}
+      >
+        <Shadow />
+        <Line />
+        <Gradient />
+        <Decorator />
+      </AreaChart>
+    </View>
+  </View>
 );
 
 const styles = StyleSheet.create({

@@ -14,6 +14,7 @@ import { useSelector } from 'react-redux';
 import { Circle, Rect } from 'react-native-svg';
 import LineChart from '../components/LineChart';
 
+
 const transactionId ="moniter";
 const _BleManager = new BleManager();
 let count = 0;
@@ -32,12 +33,25 @@ const MuscleDetailScreen: FC = () => {
     const [makedata,setMakedata] = useState<any[]>([]);
     const [notificationReceiving,setNotificationReceiving] = useState(false);
     const [device, setDevice] = useState<any>(null);
-    
+    const [phasor, setPhasor] = useState([]);
+
     const muscle = useSelector(muscleSelector);
     const musclePowerList = useSelector(musclePowerSelector);
 
     useEffect(()=>{
         console.log(musclePowerList);
+        if(musclePowerList.length > 0 ){
+            var musclePower = musclePowerList.map(function(item) {
+                return parseInt(item, 10);
+            });
+            console.log(musclePowerList.length);
+            if(musclePowerList.length == 128){
+                var fft = require('fft-js').fft;
+                var phasors = fft(musclePower);
+                console.log(phasors);
+                setPhasor(phasors);
+            }
+        }
     },[muscle]);
 
     const getAllMuscleList = (returnMessage: string | null) => {
@@ -77,23 +91,33 @@ const MuscleDetailScreen: FC = () => {
         try{
             var tempMessage:string = '';
             db.transaction((tx) =>{
-                tx.executeSql(`INSERT INTO ${muscleTableName} (musclePositionId,power) VALUES (?,?)`,[musclePositionId,power],
-                (tx,results)=>{
-                    console.log('Results', results.rowsAffected);
-                    if (results.rowsAffected > 0) {
-                        console.log('Data Inserted Successfully....');
-                        tempMessage = 'Data Inserted Success';
-                        getAllMuscleList(tempMessage);
-                    } else {
-                        console.log('Data Inserted Failed....');
-                        tempMessage = 'Data Inserted Failed';
-                        getAllMuscleList(tempMessage);
+                tx.executeSql(
+                    `SELECT * FROM ${muscleTableName} where musclePositionId = ${musclePositionId}`,
+                    [],
+                    (tx, results) => {
+                      console.log('select muscle' + results.rows.length);
+                      if (results.rows.length < 128){
+                        tx.executeSql(`INSERT INTO ${muscleTableName} (musclePositionId,power) VALUES (?,?)`,[musclePositionId,power],
+                            (tx,results)=>{
+                                console.log('Results', results.rowsAffected);
+                                if (results.rowsAffected > 0) {
+                                    console.log('Data Inserted Successfully....');
+                                    tempMessage = 'Data Inserted Success';
+                                    getAllMuscleList(tempMessage);
+                                } else {
+                                    console.log('Data Inserted Failed....');
+                                    tempMessage = 'Data Inserted Failed';
+                                    getAllMuscleList(tempMessage);
+                                }
+                            },(error: any) => {
+                                console.log(error);
+                                tempMessage = error;
+                                getAllMuscleList(tempMessage);
+                            });
+                      }
                     }
-                },(error: any) => {
-                    console.log(error);
-                    tempMessage = error;
-                    getAllMuscleList(tempMessage);
-                });
+                )
+                
             })    
         }catch(error:any){
             getAllMuscleList(error);
