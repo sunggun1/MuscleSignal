@@ -1,5 +1,5 @@
-import { View, Text, StyleSheet,Button, TouchableOpacity ,Alert,Platform,PermissionsAndroid, FlatList } from 'react-native'
-import React, { FC, SetStateAction, useLayoutEffect, useState,useEffect } from 'react'
+import { View, Text, StyleSheet, TouchableOpacity ,Alert,Platform,PermissionsAndroid } from 'react-native'
+import React, { FC, useLayoutEffect, useState,useEffect } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRoute } from '@react-navigation/native';
 import {RootRouteProps} from '../../App';
@@ -8,17 +8,12 @@ import { createMuscleTable, Muscle, muscleProp,db, muscleTableName,muscleActions
 import { useAppDispatch } from '../hook/hook';
 import {BleManager} from 'react-native-ble-plx'
 import base64 from 'react-native-base64';
-import { Buffer } from "buffer";
-import { XAxis,YAxis} from 'react-native-svg-charts';
 import { useSelector } from 'react-redux';
-import { Circle, Rect } from 'react-native-svg';
 import LineChart from '../components/LineChart';
 
 
 const transactionId ="moniter";
 const _BleManager = new BleManager();
-let count = 0;
-
 
 const MuscleDetailScreen: FC = () => {
     const route = useRoute<RootRouteProps<'MuscleDetail'>>();
@@ -60,7 +55,7 @@ const MuscleDetailScreen: FC = () => {
             var tempMessage : string = '';
             db.transaction((tx) => {
                 tx.executeSql(
-                  `SELECT * FROM ${muscleTableName} where musclePositionId = ${musclePositionId}`,
+                  `SELECT strftime("%Y-%m-%d %H:%M:%f", created) as created,musclePositionId,power,id FROM ${muscleTableName} where musclePositionId = ${musclePositionId}`,
                   [],
                   (tx, results) => {
                     var temp: muscleProp[] = [];
@@ -283,7 +278,6 @@ const MuscleDetailScreen: FC = () => {
                             console.log("Heart Rate Data:",base64.decode(update.value));
                             // assuming the device is already connected
                             var data = parseInt(base64.decode(update.value));
-                            console.log(typeof data);
                             if(data != null && typeof data == "number" ){
                                 createMuscle(musclePositionId,data)
                             }

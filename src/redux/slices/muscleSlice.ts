@@ -50,7 +50,7 @@ export const createMuscleTable = () => {
                 id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
                 musclePositionId INTEGER NOT NULL REFERENCES muscle_position(id),
                 power INTEGER NOT NULL,
-                created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP)`,
+                created DATETIME NOT NULL DEFAULT(STRFTIME('%Y-%m-%d %H:%M:%f', 'NOW')))`,
               []
             );
             Alert.alert('musclePosition DB created');
