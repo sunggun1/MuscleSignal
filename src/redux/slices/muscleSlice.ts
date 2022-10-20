@@ -97,6 +97,9 @@ export const muscleSelector = (state:RootState):Muscle => state.muscle;
 export const musclePowerSelector = createSelector(
   muscleSelector,(muscle:Muscle)=>muscle.position.map((item2)=>{return item2.power})
 );
+export const muscleTimeSelector = createSelector(
+  muscleSelector,(muscle:Muscle)=>muscle.position.map((item2)=>{return item2.created})
+);
 
 export const muscleActions = muscleSlice.actions;
 export default muscleSlice.reducer;

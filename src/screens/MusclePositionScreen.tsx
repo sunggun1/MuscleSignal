@@ -7,6 +7,7 @@ import { createMusclePositionTable,MusclePosition,musclePositionProp ,musclePosi
 import { useAppDispatch } from '../hook/hook';
 import { RootState } from '../redux/store/store';
 import { useNavigation } from '@react-navigation/native';
+import { muscleTableName } from '../redux/slices/muscleSlice';
 
 var screenWidth = Dimensions.get('window').width/3;
 
@@ -72,9 +73,11 @@ const MusclePositionScreen = () => {
                                 tempMessage = 'Data Inserted Failed';
                                 getAllMusclePositionList(tempMessage);
                             }
+                            setPositionName('');
                         },(error: any) => {
                             tempMessage = error;
                             getAllMusclePositionList(tempMessage);
+                            setPositionName('');
                         })
                     }
                 });
@@ -88,6 +91,13 @@ const MusclePositionScreen = () => {
         try{
             var tempMessage:string = '';
             db.transaction((tx) =>{
+                tx.executeSql(`DELETE from ${muscleTableName} where musclePositionId = ${id}`,[],(tx2,result2)=>{
+                    if(result2.rowsAffected > 0){
+                        console.log('DELETE all muscle data');
+                    }
+                },(error:any)=>{
+                    console.log(error);
+                })
                 tx.executeSql(`DELETE from ${musclePositionTableName} where id = ${id}`,[],
                 (tx,results)=>{
                     console.log('Results', results.rowsAffected);
@@ -123,6 +133,9 @@ const MusclePositionScreen = () => {
             <View style={{flex: 1}}>
                 <Spacer>
                     <Text style={styles.appName}>MusclePositionScreen</Text>
+                    <TouchableOpacity onPress={()=>navigation.navigate('Login')}>
+                        <Text style={{ textAlign: 'right' }}>Go To Login Page</Text>
+                    </TouchableOpacity>
                 </Spacer>
             </View>
             <ScrollView style={styles.scrollViewStyle} showsHorizontalScrollIndicator={false} horizontal={true}>

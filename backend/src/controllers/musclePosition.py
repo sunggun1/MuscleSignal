@@ -6,24 +6,23 @@ import os
 import jwt
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
-from models import musclePosition  # call model file
 
 bp = Blueprint('musclePosition', __name__, url_prefix='/musclePosition')
-
-musclePosition = musclePosition.MusclePosition()
+from app import musclePosition,db
+from sqlalchemy import and_
 
 @bp.route('/get',methods=['POST'])
 def getAll():
     data = json.loads(request.get_data().decode('utf-8'))
     token = jwt.decode(data['token'],os.environ.get("JWT_SECRET_KEY"),os.environ.get("JWT_ALGORITHM"))
     email = token['email']
-    response = musclePosition.find({"email": email})
+    response = musclePosition.query.filter(email=email).all()
     return jsonify({'musclePosition': response, 'result':'success'})
 
 @bp.route('/get/<string:id>',methods=['POST'])
 def getById(id):
     data = json.loads(request.get_data().decode('utf-8'))
-    response = musclePosition.find({"email":data["email"],"_id":id})
+    response = musclePosition.query.filter(and_(user_id=data["user_id"],id=id)).all()
     return jsonify({'musclePosition': response, 'result':'success'})
 
 @bp.route('/create',methods=['POST'])
@@ -33,29 +32,29 @@ def create():
         token = jwt.decode(data['token'],os.environ.get("JWT_SECRET_KEY"),os.environ.get("JWT_ALGORITHM"))
         email = token['email']
 
-        musclePosition.validateCollection()
-
         findData = {}
         findData["positionName"] = data["positionName"]
         findData["email"] = email
 
-        if(musclePosition.find(findData)):
-            return jsonify({'musclePosition': musclePosition.find({}),'result': '이미 존재합니다.'})
+        if(musclePosition.query.filter(and_(user_id=data["user_id"],id=id)).first()):
+            return jsonify({'musclePosition': musclePosition.query.all(),'result': '이미 존재합니다.'})
         else:
-            musclePosition.create(findData)    
-        return jsonify({'musclePosition': musclePosition.find({}),'result': 'success'})
+            musclePosition_data = musclePosition(data["position_name"],data["user_id"])
+            db.session.add(musclePosition_data)
+            db.session.commit()
+        return jsonify({'musclePosition': musclePosition.query.all(),'result': 'success'})
     except ValueError:
-        return jsonify({'musclePosition': musclePosition.find({}),'result': ValueError})
+        return jsonify({'musclePosition': musclePosition.query.all(),'result': ValueError})
 
 @bp.route('/delete/<string:id>',methods=['DELETE'])
 def delete(id):
     try:
-        if(musclePosition.delete(id)):
-            return jsonify({'musclePosition': musclePosition.find({}),'result': 'success'})
-        else:
-            return jsonify({'musclePosition': musclePosition.find({}),'result': 'fail'})
+        musclePosition_data = musclePosition().query.filter(id=id).first()
+        db.session.delete(musclePosition_data)
+        db.session.commit()
+        return jsonify({'musclePosition': musclePosition.query.all(),'result': 'success'})
     except ValueError:
-        return jsonify({'musclePosition': musclePosition.find({}),'result': ValueError})
+        return jsonify({'musclePosition': musclePosition.query.all(),'result': ValueError})
 
 
 

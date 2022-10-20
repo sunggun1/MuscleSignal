@@ -25,7 +25,18 @@ const Shadow = ({ line }:any) => (
 
 const Decorator = ({ x, y, data }:any) => {
   return data.map((value:any, index:any) => {
-    if (index === 0) return null;
+    if (index === 0) return (
+      <G key={index}>
+        <Circle
+          key={index}
+          cx={x(index)}
+          cy={y(value)}
+          r={4}
+          fill={"#4D7BF3"}
+        />
+      </G>
+    );
+
     if (data.length - 1 === index)
       return (
         <G key={index}>
@@ -54,6 +65,7 @@ const Decorator = ({ x, y, data }:any) => {
           </G>
         </G>
       );
+      
     return (
       <G key={index}>
         <Circle
@@ -89,8 +101,6 @@ const Gradient = ({ index }:any) => (
     </LinearGradient>
   </Defs>
 );
-
-
 
 export default ({ containerStyle, data }:any) => (
   <View >

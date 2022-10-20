@@ -7,33 +7,29 @@ import os
 import jwt
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
-from models import user  # call model file
+from app import users,db # call model file
 from dotenv import load_dotenv, find_dotenv
 
 load_dotenv(find_dotenv())
 
-bp = Blueprint('user', __name__, url_prefix='/user')
+bp = Blueprint('users', __name__, url_prefix='/users')
 
-user = user.User()
+
+
 
 @bp.route('/create',methods=['POST'])
 def create():
     try:
         data = json.loads(request.get_data().decode('utf-8'))
-        email = data["email"]
-        password = data["password"]
-        hashed = bcrypt.hashpw(password.encode('utf-8'),bcrypt.gensalt())
-        
-        if(user.find_by_one({'email':email})):
+        User = users(data["email"],data["password"])
+        if(users.query.filter_by(email=data["email"]).first()):
             return jsonify({'token':'','result':'이미 이메일이 있습니다.'})
         else:
-            data_info = {}
-            data_info['email'] = email
-            data_info['password'] = hashed
-            user.create(data_info) 
-        payload = {'email' : email, 'exp': datetime.datetime.now() + datetime.timedelta(minutes=30)}
-        token = jwt.encode(payload,os.environ.get("JWT_SECRET_KEY"),os.environ.get("JWT_ALGORITHM"))
-        return jsonify({'token':token, 'result' : 'success'})
+            db.session.add(User)
+            db.session.commit()
+            payload = {'email' : data["email"], 'exp': datetime.datetime.now() + datetime.timedelta(minutes=30)}
+            token = jwt.encode(payload,os.environ.get("JWT_SECRET_KEY"),os.environ.get("JWT_ALGORITHM"))
+            return jsonify({'token':token, 'result' : 'success'})
     except ValueError:
         return jsonify({'token':'','result': ValueError})
     
@@ -41,12 +37,10 @@ def create():
 def login():
     try:
         data = json.loads(request.get_data().decode('utf-8'))
-        email = data["email"]
-        password = data["password"].encode('utf-8')
-        user_data = user.find_by_one({"email": email})
+        user_data = users.query.filter_by(email=data["email"]).first()
 
-        if(bcrypt.checkpw(password,user_data["password"])):
-            payload = {'email' : email, 'exp': datetime.datetime.now() + datetime.timedelta(minutes=30)}
+        if(user_data.check_password(data["password"].encode('utf-8'))):
+            payload = {'email' : data["email"], 'exp': datetime.datetime.now() + datetime.timedelta(minutes=30)}
             token = jwt.encode(payload,os.environ.get("JWT_SECRET_KEY"),os.environ.get("JWT_ALGORITHM"))
             return jsonify({'token': token, 'result': 'success'})
         else :

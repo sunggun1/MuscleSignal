@@ -1,7 +1,7 @@
 # ==================================================================
 # module list
 # ------------------------------------------------------------------
-# python        3.6    (apt)
+# python        3.7    (apt)
 # tensorflow    latest (pip)
 # keras         latest (pip)
 # ==================================================================
@@ -74,7 +74,6 @@ RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
     ln -s /usr/bin/python3.7 /usr/local/bin/python && \
     $PIP_INSTALL \
         setuptools \
-        python-dotenv \
         && \
     $PIP_INSTALL \
         numpy \
@@ -103,11 +102,6 @@ RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
     $PIP_INSTALL \
         h5py \
         keras \
-        flask-cors\
-        pymongo[srv]\
-        Blueprint\
-        bcrypt\
-        jwt\
         && \
 
 # ==================================================================
@@ -116,6 +110,14 @@ RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
 
     $PIP_INSTALL \
         flask \
+        flask-cors\
+        pymongo[srv]\
+        Blueprint\
+        bcrypt\
+        jwt\
+        Flask-SQLAlchemy\
+        pymysql\
+        python-dotenv \
         && \
 
 # ==================================================================

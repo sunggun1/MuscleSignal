@@ -38,7 +38,7 @@ const AuthForm = ({screenName, buttonText, bottomText, onSubmit, bottomTextNavig
 
     React.useEffect(()=>{
         if(result == 'success')
-            navigation.navigate('MusclePosition');
+            navigation.navigate();
     },[result]);
 
     return ( 

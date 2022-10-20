@@ -30,7 +30,7 @@ type RootStackParamList = {
   MusclePosition : undefined;
   MuscleDetail : {
     positionName : string;
-    musclePositionId : string;
+    musclePositionId : number;
   }
 };
 
@@ -46,10 +46,10 @@ const App = () => {
     <Provider store={store}>
       <NavigationContainer>
         <Stack.Navigator initialRouteName='MusclePosition'>
-          {/* <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }}/>
-          <Stack.Screen name="Signup" component={SignupScreen} options={{ headerShown: false }}/> */}
           <Stack.Screen name="MusclePosition" component={MusclePositionScreen} options={{ headerShown: false }}/>
           <Stack.Screen name="MuscleDetail" component={MuscleDetailScreen} options={{ headerShown: false }}/>
+          <Stack.Screen name="Login" component={LoginScreen}/>
+          <Stack.Screen name="Signup" component={SignupScreen}/>
         </Stack.Navigator>
       </NavigationContainer>  
     </Provider>
