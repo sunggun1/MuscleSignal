@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRoute } from '@react-navigation/native';
 import {RootRouteProps} from '../../App';
 import { useNavigation } from '@react-navigation/native';
-import { createMuscleTable, Muscle, muscleProp,db, muscleTableName,muscleActions,muscleSelector,musclePowerSelector, muscleTimeSelector } from '../redux/slices/muscleSlice';
+import { createMuscleTable, Muscle, muscleProp, muscleTableName,muscleActions,muscleSelector,musclePowerSelector, muscleTimeSelector } from '../redux/slices/muscleSlice';
 import { useAppDispatch } from '../hook/hook';
 import {BleManager} from 'react-native-ble-plx'
 import base64 from 'react-native-base64';
@@ -13,6 +13,9 @@ import LineChartMade from '../components/LineChart';
 import {LineChart, YAxis,XAxis} from 'react-native-svg-charts';
 import { PricingButton } from 'react-native-elements/dist/pricing/PricingCard';
 import { ScrollView } from 'react-native-gesture-handler';
+import {fftSelector,fftActions, fftInterface, fftProp, createFftTable,fftTableName,createFft, deleteFftByPosition,dropFftTable,fftFrequencySelector,fftMagnitudeSelector, fftMagnitudePowerSelector,fftMagnitudeLessThanAThousandSelector } from '../redux/slices/fftSlice';
+import { db } from '../redux/slices/databaseSlice';
+import { createIconSetFromFontello } from 'react-native-vector-icons';
 
 const transactionId ="moniter";
 
@@ -26,21 +29,26 @@ const MuscleDetailScreen: FC = () => {
     const [deviceid,setDeviceid] = useState('');
     const [serviceUUID,setServiceUUID] = useState('');
     const [characteristicsUUID,setCharacteristicsUUID] = useState('');
+    const [characteristicArray, setCharacteristicArrays] = useState<any>([]);
     const [text1,setText1] = useState('');
     const [device, setDevice] = useState<any>(null);
     const [musclePowers,setMusclePower] = useState<any>([]);
-    const [convertIng,setConvertIng] = useState(true);
     const [startTime,setStartTime] = useState<any>(null);
     const [endTime,setEndTime] = useState<any>(null);
-    const [calories, setCalroies] = useState<number>(0);
-    const [frequency,setFrequency] = useState([]);
-    const [magnitude,setMagnitude] = useState([]);
 
     const muscle = useSelector(muscleSelector);
     const musclePowerList = useSelector(musclePowerSelector);
     const muscelTimePowerList = useSelector(muscleTimeSelector);
 
+    const fftList = useSelector(fftSelector);
+    const fftFrequnecy:any = useSelector(fftFrequencySelector);
+    const fftMagnitude:any = useSelector(fftMagnitudeSelector);
+    const fftMagnitudePower:any = useSelector(fftMagnitudePowerSelector);
+    const fftMagnitudeLessThanAThousand:any = useSelector(fftMagnitudeLessThanAThousandSelector);
+
     useEffect(()=>{
+        console.log(fftMagnitudePower);
+        console.log(fftMagnitudeLessThanAThousand);
         // var fft = require('fft-js').fft,
         // fftUtil = require('fft-js').util,
 
@@ -60,60 +68,17 @@ const MuscleDetailScreen: FC = () => {
         // console.log(both);
     },[]);
 
-    useEffect(()=>{
-        // console.log(musclePowerList);
-        // console.log(muscelTimePowerList);
-        // 2022-10-18 03:27:37.182
-        // "2022-10-18 03:28:31.790"
-        if(musclePowerList.length > 0 ){
-            var musclePower = musclePowerList.map(function(item) {
-                return parseInt(item, 10);
-            });
-            // console.log(musclePowerList.length);
-            if(musclePowerList.length == 512){
-                var fft = require('fft-js').fft;
-                var fftUtil = require('fft-js').util;
-                const divide = 16
-
-                const totalFreq:any = []
-                const totalMag:any = []
-                for(var i = 0; i < musclePowerList.length / divide; i++){
-                    var temp = musclePowerList.slice(divide*i, divide*(i+1))
-                    // console.log(temp);
-                    var phasors = fft(temp);
-                    var frequencies = fftUtil.fftFreq(phasors, 16), // Sample rate and coef is just used for length, and frequency step
-                    magnitudes = fftUtil.fftMag(phasors);
-                    
-                    // console.log(frequencies);
-                    var both = frequencies.map(function (f:any, ix:any) {
-                        return {frequency: f, magnitude: magnitudes[ix]};
-                    });
-                    const removefirst = both.shift();
-
-                    var freq = both.map(function(element:any) {
-                        return element['frequency'];
-                    });
-
-                    var mag = both.map(function(element:any) {
-                        return element['magnitude'];
-                    });
-
-                    // console.log(both);
-                    totalFreq.push(freq)
-                    totalMag.push(mag)
-                }
-                setFrequency(totalFreq);
-                setMagnitude(totalMag);
-            }
-        }
-    },[musclePowers]);
+   
 
     useEffect(()=>{
         const init = async() => {
             await createMuscleTable();
             await getAllMuscleList(null);
+            await createFftTable();
+            await getAllFftList(null);
         }
         init();
+        
         _BleManager.current = new BleManager();
         if (Platform.OS === 'android' && Platform.Version >= 23) {
             PermissionsAndroid.requestMultiple([PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,  
@@ -149,15 +114,56 @@ const MuscleDetailScreen: FC = () => {
                     });
                 }
             });
-        }
+        }        
     },[]);
+
+    useEffect(()=>{
+        if(musclePowerList.length > 0 ){
+            if(musclePowerList.length == 512){
+                var fft = require('fft-js').fft;
+                var fftUtil = require('fft-js').util;
+                
+                const divide = 16
+                if (fftList.array.length == 0){
+                    for(var i = 0; i < musclePowerList.length / divide; i++){
+                        var temp = musclePowerList.slice(divide*i, divide*(i+1))
+                        // console.log(temp);
+                        var phasors = fft(temp);
+                        var frequencies = fftUtil.fftFreq(phasors, 16), // Sample rate and coef is just used for length, and frequency step
+                        magnitudes = fftUtil.fftMag(phasors);
+                        
+                        // console.log(frequencies);
+                        var both = frequencies.map(function (f:any, ix:any) {
+                            return {frequency: f, magnitude: magnitudes[ix]};
+                        });
+                        const removefirst = both.shift();
+
+                        var freq = both.map(function(element:any) {
+                            return element['frequency'];
+                        });
+
+                        var mag = both.map(function(element:any) {
+                            return element['magnitude'];
+                        });
+                        
+                        freq.map((item:any,index:any)=>{
+                            createFft(musclePositionId, item, i,index, 1);
+                        });
+
+                        mag.map((item:any,index:any)=>{
+                            createFft(musclePositionId, item, i,index, 0);
+                        });
+                    }
+                }   
+                getAllFftList(null);
+            }
+        }
+    },[fftList.result]);
 
     // 종료 시 발동, 뒤로가기 누르거나, 리로드 하면 발동
     useEffect(() => {
         return () => {
             console.log('BleManager destroy');
-            setFrequency([]);
-            setMagnitude([]);
             _BleManager.current.destroy();
          };
     }, []);
@@ -196,6 +202,45 @@ const MuscleDetailScreen: FC = () => {
         }
     }
 
+    const getAllFftList = (returnMessage: string | null) => {
+        try{
+            var tempResult : fftProp[] = [];
+            var tempMessage : string = '';
+            db.transaction((tx) => {
+                tx.executeSql(
+                  `SELECT strftime("%Y-%m-%d %H:%M:%f", created) as created,id,musclePositionId,power,arrIndex,arrInsideIndex,isFrequency FROM ${fftTableName} where musclePositionId = ${musclePositionId}`,
+                  [],
+                  (tx, results) => {
+                    console.log('getAllFftList success');
+                    tempMessage = 'success';
+                    if(results.rows.length > 0 ){
+                        var temp: fftProp[] = [];
+                        for (let i = 0; i < results.rows.length; i++){
+                            temp.push(results.rows.item(i));
+                        }
+                        tempResult = temp;
+                        const data: fftInterface = {array : tempResult, result : returnMessage? returnMessage : tempMessage} as fftInterface;
+                        dispatch(fftActions.getfft(data));
+                    }else{
+                        const data: fftInterface = {array : tempResult, result : returnMessage? returnMessage : tempMessage} as fftInterface;
+                        dispatch(fftActions.getfft(data));    
+                    }
+                  }
+                ,(error: any)=>{
+                    console.log('getAllFftList error')
+                    console.log(error);
+                    tempResult = [];
+                    tempMessage = error;
+                    const data: fftInterface = {array : tempResult, result : tempMessage} as fftInterface;
+                    dispatch(fftActions.getfft(data));
+                });
+            });
+        }catch(error:any){
+            const data: fftInterface = {array : [], result : error} as fftInterface;
+            dispatch(fftActions.getfft(data));
+        }
+    }
+
     const createMuscle = (musclePositionId: number,power:number)=>{
         try{
             var tempMessage:string = '';
@@ -209,17 +254,21 @@ const MuscleDetailScreen: FC = () => {
                             (tx,results)=>{
                                 if (results.rowsAffected > 0) {
                                     tempMessage = 'Data Inserted Success';
-                                    getAllMuscleList(tempMessage);
+                                    // getAllMuscleList(tempMessage);
                                 } else {
                                     console.log('Data Inserted Failed....');
                                     tempMessage = 'Data Inserted Failed';
-                                    getAllMuscleList(tempMessage);
+                                    // getAllMuscleList(tempMessage);
                                 }
                             },(error: any) => {
                                 console.log(error);
                                 tempMessage = error;
-                                getAllMuscleList(tempMessage);
+                                // getAllMuscleList(tempMessage);
                             });
+                      }else{
+                        getAllMuscleList(null)
+                        disconnect();
+                        getAllFftList(null);
                       }
                     }
                 )  
@@ -238,6 +287,8 @@ const MuscleDetailScreen: FC = () => {
                     if (results.rowsAffected > 0) {
                         tempMessage = 'Data deleted success';
                         getAllMuscleList(tempMessage);
+                        deleteFftByPosition(musclePositionId);
+                        getAllFftList(null);
                     } else {
                         console.log('Data deleted Failed....');
                         tempMessage = 'Data deleted success';
@@ -245,12 +296,47 @@ const MuscleDetailScreen: FC = () => {
                     }
                 },(error: any) => {
                     tempMessage = error;
+                    getAllMuscleList(error);
                 })
             })
         }catch(error:any){
             getAllMuscleList(error);
         } 
     };
+
+    const getNotifyServicesAndCharacteristics = (device:any) => {
+        return new Promise((resolve, reject) => {
+            device.services().then((services: { characteristics: () => Promise<any>; }[]) => {
+                const characteristics: any[] = []
+                console.log("service : ",services)
+                services.forEach((service: { characteristics: () => Promise<any>; }, i: number) => {
+                    service.characteristics().then(c => {
+                      console.log("service.notifiable.characteristics")
+                      
+                        characteristics.push(c)
+                        console.log(characteristics)
+                        if (i === services.length - 1) {
+                            const temp = characteristics.reduce(
+                                (acc, current) => {
+                                    return [...acc, ...current]
+                                },
+                                []
+                            )
+                            const dialog = temp.find(
+                                (characteristic: { isNotifiable: any; }) =>
+                                    characteristic.isNotifiable
+                            )
+                            if (!dialog) {
+                                reject('No notifiable characteristic')
+                              }
+                            resolve(dialog)
+                        }
+                      
+                    })
+                })
+            })
+        })
+    }
 
     const getServicesAndCharacteristics = (device:any) => {
         return new Promise((resolve, reject) => {
@@ -285,10 +371,6 @@ const MuscleDetailScreen: FC = () => {
             })
         })
     }
-    
-    const stopNotication = () =>{
-        _BleManager.current.cancelTransaction(transactionId)
-    }
 
 
     const disconnect = () =>{
@@ -300,50 +382,30 @@ const MuscleDetailScreen: FC = () => {
                 setServiceUUID('');
                 setCharacteristicsUUID('');
                 setText1('');
+                setCharacteristicArrays([]);
             })
             .catch((err)=>console.log("error on cancel connection",err))
        })
     }
 
     const readData = async(device:any) => {
-        const services : any = await device.services();
-        console.log('read data device Service: ' +services);
-        // setText1('10초 간 데이터 받아오는 중...');
-        // var tempStartTime = new Date();
-        // var tempEndTime = tempStartTime
-        // tempEndTime.setSeconds(tempEndTime.getSeconds() + 10)
-        // setStartTime(tempStartTime);
-        // setEndTime(tempEndTime);
-        // setConvertIng(true);
-
-        services.forEach(async (service:any) => {
-            const characteristics = await device.characteristicsForService(service.uuid);
-            console.log(characteristics);
-            characteristics.forEach((result:any)=>{
-                if(result.isNotifiable === true){
-                    console.log("characteristic foreach start")
-                    console.log(result);
-                    result.monitor((err: any, update: any) => {
-                        if (err) {
-                            console.log(`characteristic error: ${err}`);
-                            console.log(JSON.stringify(err));
-                        } else {
-                            // console.log(update.value);
-                            var data = parseInt(base64.decode(update.value));
-                            console.log(data);
-                            if(data != null && typeof data == "number"){
-                                if (data > 400){
-                                    createMuscle(musclePositionId,data);
-                                }else{
-                                    createMuscle(musclePositionId,0);
-                                }
-                            }
-                        }
-                    });
+        if(characteristicArray.isNotifiable === true){
+            characteristicArray.monitor((err: any, update: any) => {
+                if (err) {
+                    console.log(`characteristic error: ${err}`);
+                    console.log(JSON.stringify(err));
+                } else {
+                    // console.log(update.value);
+                    var data = parseInt(base64.decode(update.value));
+                    console.log(data);
+                    if(data != null && typeof data == "number"){
+                        createMuscle(musclePositionId,data);
+                    }
                 }
             });
-        });
+        }
     }
+
 
     const scanAndConnect = async () =>{
         setText1("Scanning...");
@@ -366,14 +428,17 @@ const MuscleDetailScreen: FC = () => {
                     const serviceUUIDs= device.serviceUUIDs[0]
                     setText1(`Connecting to ${device.name}`);
                     _BleManager.current.stopDeviceScan();
-                    _BleManager.current.connectToDevice(device.id, {autoConnect:true}).then((device) => {
+                    _BleManager.current.connectToDevice(device.id, {autoConnect:true,requestMTU:50}).then((device) => {
                         (async () => {
                             const services = await device.discoverAllServicesAndCharacteristics()
+                            console.log(services);
                             const characteristic:any = await getServicesAndCharacteristics(services)
+                            const notifiableCharacteristic:any = await getNotifyServicesAndCharacteristics(device)
                             setDeviceid(device.id);
                             setServiceUUID(serviceUUIDs);
                             setCharacteristicsUUID(characteristic.uuid);
                             setDevice(device);
+                            setCharacteristicArrays(notifiableCharacteristic);
                             setText1(`Connected to ${device.name}`);
                         })();
                         setDevice(device);
@@ -384,6 +449,7 @@ const MuscleDetailScreen: FC = () => {
                         console.log("Listening...")
                     }, (error) => {
                         Alert.alert("Connection error"+JSON.stringify(error))
+                        console.log(error);
                     })
                 }
             }
@@ -424,7 +490,17 @@ const MuscleDetailScreen: FC = () => {
                     borderRadius: 5,
                     alignSelf: 'flex-end', 
                 }}>
-                    <Text>Delete All Data</Text>
+                    <Text>근육 데이터 삭제</Text>
+                </TouchableOpacity> 
+                <TouchableOpacity onPress={()=>{deleteFftByPosition(musclePositionId); getAllFftList(null);}} style={
+                {
+                    position:'absolute',
+                    borderColor: '#000000',
+                    borderWidth: StyleSheet.hairlineWidth,
+                    borderRadius: 5,
+                    alignSelf: 'center', 
+                }}>
+                    <Text>fft 데이터 삭제</Text>
                 </TouchableOpacity>
             </View>
             <View style={{alignItems:'center',marginVertical : 10}}>
@@ -448,34 +524,39 @@ const MuscleDetailScreen: FC = () => {
                 }
             </View>
             <View style={{padding: 10, flex: 1}}>
-                <ScrollView style={{flex: 1}}>
-                {frequency.length > 0 && musclePowerList.length == 512?
-                    magnitude.map((item,index)=>{
-                        return(                        
-                        <View style={{
-                            height: 300,
-                            padding: 30,
-                            flexDirection: "row"
-                        }}>
-                            <View style={{flex: 1}}>
-                                <LineChartMade
-                                    data={item}
-                                    containerStyle={{ width: "95%", height: 250 }}
-                                />
-                                
-                                <XAxis
-                                    data={ frequency[index] }
-                                    style={{ marginTop: 10 }}
-                                    formatLabel={(value, index2) => frequency[index2][value] }
-                                    contentInset={{ left:40, right: 2 }}
-                                    svg={{ fontSize: 10, fill: '#3A8F98' }}
-                                />
-                            </View>
-                        </View>
-                        );
-                    })
-                    :
-                    null
+                <ScrollView style={{flex: 1}} key={null} >
+                {
+                    (fftFrequnecy != undefined && fftFrequnecy.length > 0) && (fftMagnitude != undefined && fftMagnitude.length > 0)
+                    ? 
+                        fftFrequnecy.length > 0 && musclePowerList.length == 512?
+                            fftMagnitude && fftMagnitude.map((item:any,index:number)=>{
+                                return(                        
+                                <View style={{
+                                    height: 300,
+                                    padding: 30,
+                                    flexDirection: "row"
+                                }}>
+                                    <View style={{flex: 1}}>
+                                        <LineChartMade
+                                            data={item}
+                                            containerStyle={{ width: "95%", height: 250 }}
+                                        />
+                                        
+                                        <XAxis
+                                            data={ fftFrequnecy[index] }
+                                            style={{ marginTop: 10 }}
+                                            formatLabel={(value, index2) => fftFrequnecy[index2][value] }
+                                            contentInset={{ left:40, right: 2 }}
+                                            svg={{ fontSize: 10, fill: '#3A8F98' }}
+                                            key = {index}
+                                        />
+                                    </View>
+                                </View>
+                                );
+                            })
+                            :
+                            null
+                    : null
                 }
                 </ScrollView>
             </View>

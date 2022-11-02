@@ -1,10 +1,6 @@
 import { createSlice,PayloadAction,createAsyncThunk, isRejectedWithValue } from "@reduxjs/toolkit";
-import backendApi from "../../api/backendApi";
-// import db from "../sqlite/db";
 import { Alert } from "react-native";
-import { ThunkAction,AnyAction,ThunkDispatch } from "@reduxjs/toolkit";
-import SQLite from "react-native-sqlite-storage";
-import { useDispatch } from "react-redux";
+import { db } from "./databaseSlice";
 
 export interface musclePositionProp {
     id : number;
@@ -21,18 +17,6 @@ const initialState : MusclePosition = {
     musclePosition : [],
     result : ''
 }
-
-export const db = SQLite.openDatabase({
-    name: 'local.db',
-    createFromLocation: '~www/local.db',
-    location:'Library'
-  },
-  () => {
-    console.log('불러오기 성공');
-  },
-  error => {
-    console.log(error);
-});
 
 export const musclePositionTableName = 'muscle_position';
 
@@ -60,38 +44,6 @@ export const createMusclePositionTable = () => {
       );
     })
 };
-
-// export const getAllMusclePosition = createAsyncThunk<MusclePosition,any,{state:RootState, rejectValue: MusclePosition}>('getAllMusclePosition', async (_:Event,{getState,rejectWithValue})=> {
-//     const state = getState();
-//     const token = state.auth.token;
-//     const response : any = await backendApi.post('/musclePosition/get',{token});    
-//     if(response.status == 400){
-//         return rejectWithValue((await response.data))
-//     }
-//     return (response.data) as MusclePosition;
-// });
-
-// export const createMusclePosition = createAsyncThunk<MusclePosition,string,{state:RootState,rejectValue: MusclePosition}>('createMusclePosition', async (positionName: string,{getState,rejectWithValue}) =>{
-//     const state = getState();
-//     const token = state.auth.token;
-//     const response : any = await backendApi.post('/musclePosition/create', {positionName,token})    
-    
-//     if(response.status == 400){
-//         return rejectWithValue((await response.data))
-//     }
-
-//     return (response.data) as MusclePosition;
-// });
-
-// export const deleteMusclePosition = createAsyncThunk<MusclePosition,string,{state:RootState,rejectValue: MusclePosition}>('deleteMusclePosition', async (id: string,thunkAPI)=>{
-//     const response : any = await backendApi.delete(`/musclePosition/delete/${id}`);
-    
-//     if(response.status == 400){
-//         return thunkAPI.rejectWithValue((await response.data))
-//     }
-
-//     return (response.data) as MusclePosition;
-// });
 
 const musclePositionSlice = createSlice({
     name : 'musclePosition',

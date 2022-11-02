@@ -3,11 +3,12 @@ import React,{useEffect, useState} from 'react'
 import { FlatList, TextInput } from 'react-native-gesture-handler';
 import { useSelector } from 'react-redux';
 import Spacer from '../components/Spacer';
-import { createMusclePositionTable,MusclePosition,musclePositionProp ,musclePositionTableName,db, musclePositionActions} from '../redux/slices/musclePositionSlice';
+import { createMusclePositionTable,MusclePosition,musclePositionProp ,musclePositionTableName, musclePositionActions} from '../redux/slices/musclePositionSlice';
 import { useAppDispatch } from '../hook/hook';
 import { RootState } from '../redux/store/store';
 import { useNavigation } from '@react-navigation/native';
 import { muscleTableName } from '../redux/slices/muscleSlice';
+import { db } from '../redux/slices/databaseSlice';
 
 var screenWidth = Dimensions.get('window').width/3;
 
