@@ -2,13 +2,14 @@ import pymysql
 
 class Database():
     def __init__(self):
-        self.db = pymysql.connect(host='127.0.0.1',
-                                  user='root',
+        self.db = pymysql.connect(host='terraform-20221103031822744200000001.cj4hsozsjwj8.ap-northeast-2.rds.amazonaws.com',
+                                  user='admin',
                                   password='password',
                                   db='mydb',
+                                  port = 3306,
                                   charset='utf8')
         self.cursor = self.db.cursor(pymysql.cursors.DictCursor)
- 
+
     def execute(self, query, args={}):
         self.cursor.execute(query, args)  
  

@@ -2,7 +2,6 @@ import json
 from flask import Flask, jsonify, request,Blueprint
 import sys
 import os
-import jwt
 from src.database import dbModule
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 

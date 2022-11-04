@@ -15,8 +15,8 @@ import { PricingButton } from 'react-native-elements/dist/pricing/PricingCard';
 import { ScrollView } from 'react-native-gesture-handler';
 import {fftSelector,fftActions, fftInterface, fftProp, createFftTable,fftTableName,createFft, deleteFftByPosition,dropFftTable,fftFrequencySelector,fftMagnitudeSelector, fftMagnitudePowerSelector,fftMagnitudeLessThanAThousandSelector } from '../redux/slices/fftSlice';
 import { db } from '../redux/slices/databaseSlice';
-import { createIconSetFromFontello } from 'react-native-vector-icons';
-
+import { insertMuscleApi } from '../api/muscleApi';
+import { insertMusclePositionApi } from '../api/musclePositionApi';
 const transactionId ="moniter";
 
 const MuscleDetailScreen: FC = () => {
@@ -47,8 +47,8 @@ const MuscleDetailScreen: FC = () => {
     const fftMagnitudeLessThanAThousand:any = useSelector(fftMagnitudeLessThanAThousandSelector);
 
     useEffect(()=>{
-        console.log(fftMagnitudePower);
-        console.log(fftMagnitudeLessThanAThousand);
+        // console.log(fftMagnitudePower);
+        // console.log(fftMagnitudeLessThanAThousand);
         // var fft = require('fft-js').fft,
         // fftUtil = require('fft-js').util,
 
@@ -118,6 +118,7 @@ const MuscleDetailScreen: FC = () => {
     },[]);
 
     useEffect(()=>{
+        // console.log(muscle.position);
         if(musclePowerList.length > 0 ){
             if(musclePowerList.length == 512){
                 var fft = require('fft-js').fft;
@@ -269,6 +270,7 @@ const MuscleDetailScreen: FC = () => {
                         getAllMuscleList(null)
                         disconnect();
                         getAllFftList(null);
+                        insertMuscleApi(muscle.position,positionName);
                       }
                     }
                 )  
@@ -389,6 +391,7 @@ const MuscleDetailScreen: FC = () => {
     }
 
     const readData = async(device:any) => {
+        setText1('saving Datas...');
         if(characteristicArray.isNotifiable === true){
             characteristicArray.monitor((err: any, update: any) => {
                 if (err) {

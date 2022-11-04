@@ -3,18 +3,29 @@ from flask import Flask, jsonify, request,Blueprint
 import sys
 import os
 from src.database import dbModule
-
+from src.controllers.musclePosition import getOneMusclePositionByName
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
 bp = Blueprint('muscle', __name__, url_prefix='/muscle')
 
 
-@bp.route('/get',methods=['POST'])
-#SELECT muscle 함수 
-def getAll():
+def getAllMuscleByName(positionName):
     db_class = dbModule.Database()
-    data = json.loads(request.get_data().decode('utf-8'))
-    sql      = """SELECT * FROM mydb.muscle Where muscleposition_id='%s' and user_id='%s'""" %(data["muscleposition_id"],data["user_id"])
+    musclePosition = getOneMusclePositionByName(positionName)
+    sql      = "SELECT * FROM mydb.muscle where musclePositionId='%s'" %(musclePosition["id"])
+    row      = db_class.executeAll(sql)
+    return row
+
+def getAllMuscleById(musclePositionId):
+    db_class = dbModule.Database()
+    sql      = "SELECT * FROM mydb.muscle Where musclePositionId='%s'" %(musclePositionId)
+    row      = db_class.executeAll(sql)
+    return row
+
+@bp.route('/<int:musclePositionId>',methods=['GET'])
+def getAll(musclePositionId):
+    db_class = dbModule.Database()
+    sql      = "SELECT * FROM mydb.muscle Where musclePositionId='%s'" %(musclePositionId)
     row      = db_class.executeAll(sql)
     
     return jsonify({'position': row, 'result':'success'})
@@ -22,23 +33,31 @@ def getAll():
 @bp.route('/create',methods=['POST'])
 def create():
     try:
-        data = json.loads(request.get_data().decode('utf-8'))
+        data = request.get_json()
         db_class = dbModule.Database()
-        sql      = "INSERT INTO mydb.muscle(power,time,muscleposition_id,user_id) \
-                VALUES('%s','%s','%s','%s')" % (data["power"],data["time"],data["muscleposition_id"],data["user_id"])
-        db_class.execute(sql)
-        db_class.commit()
-        return jsonify({'position': getAll(),'result': 'success'})
-    except ValueError:
-        return jsonify({'position': getAll(),'result': ValueError})
+        musclePosition = []
+        if data['positionName']:
+            musclePosition = getOneMusclePositionByName(data['positionName'])
 
-@bp.route('/delete/<string:musclePositionId>',methods=['DELETE'])
-def deleteAll(musclePositionId):
+        if data['muscleArrays'] and musclePosition:
+            for val in data['muscleArrays']:
+                sql      = "INSERT INTO mydb.muscle(musclePositionId,power,created) \
+                        VALUES('%s','%s','%s')" % (musclePosition["id"],val["power"],val["created"])
+                db_class.execute(sql)
+                db_class.commit()
+        return jsonify({'position': getAllMuscleByName(data['positionName']),'result': 'success'})
+    except ValueError:
+        return jsonify({'position': getAllMuscleByName(data['positionName']),'result': ValueError})
+
+@bp.route('/delete',methods=['DELETE'])
+def deleteAll():
     try:
+        data = request.get_json()
+        musclePosition = getOneMusclePositionByName(data['positionName'])
         db_class = dbModule.Database()
-        sql = "DELETE FROM mydb.muscle WHERE muscleposition_id = ('%s')" %(musclePositionId)
+        sql = "DELETE FROM mydb.muscle WHERE musclePositionId = '%s'" %(musclePosition['id'])
         db_class.execute(sql)
         db_class.commit()
-        return jsonify({'position': getAll(),'result': 'success'})
+        return jsonify({'position': getAllMuscleByName(data['positionName']),'result': 'success'})
     except ValueError:
-        return jsonify({'position': getAll(),'result': ValueError})
+        return jsonify({'position': getAllMuscleByName(data['positionName']),'result': ValueError})

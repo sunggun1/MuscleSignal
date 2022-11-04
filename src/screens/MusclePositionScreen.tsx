@@ -9,6 +9,9 @@ import { RootState } from '../redux/store/store';
 import { useNavigation } from '@react-navigation/native';
 import { muscleTableName } from '../redux/slices/muscleSlice';
 import { db } from '../redux/slices/databaseSlice';
+import { deleteMusclePositionApi,insertMusclePositionApi } from '../api/musclePositionApi';
+import { deleteMuscleApi } from '../api/muscleApi';
+
 
 var screenWidth = Dimensions.get('window').width/3;
 
@@ -68,6 +71,7 @@ const MusclePositionScreen = () => {
                             if (results.rowsAffected > 0) {
                                 console.log('Data Inserted Successfully....');
                                 tempMessage = 'Data Inserted Success';
+                                insertMusclePositionApi(positionName);
                                 getAllMusclePositionList(tempMessage);
                             } else {
                                 console.log('Data Inserted Failed....');
@@ -88,13 +92,14 @@ const MusclePositionScreen = () => {
         }
     };
     
-    const deleteMusclePosition = (id: number) =>{
+    const deleteMusclePosition = (id: number,positionName:string) =>{
         try{
             var tempMessage:string = '';
             db.transaction((tx) =>{
                 tx.executeSql(`DELETE from ${muscleTableName} where musclePositionId = ${id}`,[],(tx2,result2)=>{
                     if(result2.rowsAffected > 0){
                         console.log('DELETE all muscle data');
+                        deleteMuscleApi(positionName)
                     }
                 },(error:any)=>{
                     console.log(error);
@@ -105,6 +110,7 @@ const MusclePositionScreen = () => {
                     if (results.rowsAffected > 0) {
                         console.log('Data deleted Successfully....');
                         tempMessage = 'Data deleted success';
+                        deleteMusclePositionApi(positionName)
                         getAllMusclePositionList(tempMessage);
                     } else {
                         console.log('Data deleted Failed....');
@@ -172,7 +178,7 @@ const MusclePositionScreen = () => {
                                     </View>
                                     <View style = {{flex :1 , borderWidth : 1}}>
                                         <Button title="버튼 삭제" color='red' onPress={()=>{
-                                            deleteMusclePosition(item.id);
+                                            deleteMusclePosition(item.id,item.positionName);
                                         }}/>
                                     </View>
                                 </View>
