@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "muscleTech2.app"
-               BlueprintName = "muscleTech2"
-               ReferencedContainer = "container:muscleTech2.xcodeproj">
+               BuildableName = "muscleSignal.app"
+               BlueprintName = "muscleSignal"
+               ReferencedContainer = "container:muscleSignal.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,15 +33,15 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "muscleTech2Tests.xctest"
-               BlueprintName = "muscleTech2Tests"
-               ReferencedContainer = "container:muscleTech2.xcodeproj">
+               BuildableName = "muscleSignalTests.xctest"
+               BlueprintName = "muscleSignalTests"
+               ReferencedContainer = "container:muscleSignal.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
-      buildConfiguration = "Debug"
+      buildConfiguration = "Release"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "muscleTech2.app"
-            BlueprintName = "muscleTech2"
-            ReferencedContainer = "container:muscleTech2.xcodeproj">
+            BuildableName = "muscleSignal.app"
+            BlueprintName = "muscleSignal"
+            ReferencedContainer = "container:muscleSignal.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "muscleTech2.app"
-            BlueprintName = "muscleTech2"
-            ReferencedContainer = "container:muscleTech2.xcodeproj">
+            BuildableName = "muscleSignal.app"
+            BlueprintName = "muscleSignal"
+            ReferencedContainer = "container:muscleSignal.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

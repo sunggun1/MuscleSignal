@@ -9,9 +9,7 @@ import { RootState } from '../redux/store/store';
 import { useNavigation } from '@react-navigation/native';
 import { muscleTableName } from '../redux/slices/muscleSlice';
 import { db } from '../redux/slices/databaseSlice';
-import { deleteMusclePositionApi,insertMusclePositionApi } from '../api/musclePositionApi';
-import { deleteMuscleApi } from '../api/muscleApi';
-
+import { deleteFftByPosition } from '../redux/slices/fftSlice';
 
 var screenWidth = Dimensions.get('window').width/3;
 
@@ -63,19 +61,16 @@ const MusclePositionScreen = () => {
                 tx.executeSql(`SELECT * FROM ${musclePositionTableName} where positionName=(?)`,[positionName],
                 (tx,results)=>{
                     if(results.rows.length > 0){
-                        getAllMusclePositionList('Data Already exists');
+                        getAllMusclePositionList('데이터가 이미 있습니다.');
                     }else{
                         tx.executeSql(`INSERT INTO ${musclePositionTableName} (positionName) VALUES (?)`,[positionName],
                         (tx,results)=>{
                             console.log('Results', results.rowsAffected);
                             if (results.rowsAffected > 0) {
-                                console.log('Data Inserted Successfully....');
-                                tempMessage = 'Data Inserted Success';
-                                insertMusclePositionApi(positionName);
+                                tempMessage = '데이터 추가 성공';
                                 getAllMusclePositionList(tempMessage);
                             } else {
-                                console.log('Data Inserted Failed....');
-                                tempMessage = 'Data Inserted Failed';
+                                tempMessage = '데이터 추가 실패';
                                 getAllMusclePositionList(tempMessage);
                             }
                             setPositionName('');
@@ -92,15 +87,15 @@ const MusclePositionScreen = () => {
         }
     };
     
-    const deleteMusclePosition = (id: number,positionName:string) =>{
+    const deleteMusclePosition = (id: number) =>{
         try{
             var tempMessage:string = '';
             db.transaction((tx) =>{
                 tx.executeSql(`DELETE from ${muscleTableName} where musclePositionId = ${id}`,[],(tx2,result2)=>{
                     if(result2.rowsAffected > 0){
                         console.log('DELETE all muscle data');
-                        deleteMuscleApi(positionName)
                     }
+                    deleteFftByPosition(id);
                 },(error:any)=>{
                     console.log(error);
                 })
@@ -108,13 +103,10 @@ const MusclePositionScreen = () => {
                 (tx,results)=>{
                     console.log('Results', results.rowsAffected);
                     if (results.rowsAffected > 0) {
-                        console.log('Data deleted Successfully....');
-                        tempMessage = 'Data deleted success';
-                        deleteMusclePositionApi(positionName)
+                        tempMessage = '데이터 삭제 성공';
                         getAllMusclePositionList(tempMessage);
                     } else {
-                        console.log('Data deleted Failed....');
-                        tempMessage = 'Data deleted success';
+                        tempMessage = '데이터 삭제 실패';
                         getAllMusclePositionList(tempMessage);
                     }
                 },(error: any) => {
@@ -139,10 +131,7 @@ const MusclePositionScreen = () => {
         <SafeAreaView style={styles.container}>
             <View style={{flex: 1}}>
                 <Spacer>
-                    <Text style={styles.appName}>MusclePositionScreen</Text>
-                    <TouchableOpacity onPress={()=>navigation.navigate('Login')}>
-                        <Text style={{ textAlign: 'right' }}>Go To Login Page</Text>
-                    </TouchableOpacity>
+                    <Text style={styles.appName}>근육 위치</Text>
                 </Spacer>
             </View>
             <ScrollView style={styles.scrollViewStyle} showsHorizontalScrollIndicator={false} horizontal={true}>
@@ -178,7 +167,7 @@ const MusclePositionScreen = () => {
                                     </View>
                                     <View style = {{flex :1 , borderWidth : 1}}>
                                         <Button title="버튼 삭제" color='red' onPress={()=>{
-                                            deleteMusclePosition(item.id,item.positionName);
+                                            deleteMusclePosition(item.id);
                                         }}/>
                                     </View>
                                 </View>

@@ -1,9 +1,7 @@
-import { createSlice, createAsyncThunk,createSelector } from "@reduxjs/toolkit";
+import { createSlice, createSelector } from "@reduxjs/toolkit";
 import { Alert } from "react-native";
-import backendApi from "../../api/backendApi";
 import { db } from "./databaseSlice";
 import { RootState } from "../store/store";
-import { Selector } from "react-redux";
 
 export interface muscleProp {
     id : string;
@@ -66,6 +64,24 @@ export const musclePowerSelector = createSelector(
 );
 export const muscleTimeSelector = createSelector(
   muscleSelector,(muscle:Muscle)=>muscle.position.map((item2)=>{return item2.created})
+);
+
+export const musclePowerOneOrZeroSelector = createSelector(
+  muscleSelector,(muscle:Muscle)=>muscle.position.map((item2)=>{return (parseInt(item2.power) > 400 ? 1 : 0)})
+);
+
+export const muscleCycleSelector = createSelector(
+  musclePowerOneOrZeroSelector,(musclePowerOneOrZero : any) => {
+    var l2 =[1,1,1,1,1,1,1,0] // 1 7개, 0 1개
+    var count = 0;
+    for(var i = 0; i< musclePowerOneOrZero.length; i++ ){
+      var comparedArray = musclePowerOneOrZero.slice(i,i+l2.length)
+      if(JSON.stringify(comparedArray) === JSON.stringify(l2)){
+        count += 1;
+      }
+    }
+    return count;
+  }
 );
 
 export const muscleActions = muscleSlice.actions;

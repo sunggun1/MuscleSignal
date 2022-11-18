@@ -1,23 +1,17 @@
 import { View, Text, StyleSheet, TouchableOpacity ,Alert,Platform,PermissionsAndroid } from 'react-native'
-import React, { FC, useLayoutEffect, useState,useEffect,useRef } from 'react'
+import React, { FC, useState,useEffect,useRef } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRoute } from '@react-navigation/native';
 import {RootRouteProps} from '../../App';
 import { useNavigation } from '@react-navigation/native';
-import { createMuscleTable, Muscle, muscleProp, muscleTableName,muscleActions,muscleSelector,musclePowerSelector, muscleTimeSelector } from '../redux/slices/muscleSlice';
+import { createMuscleTable, Muscle, muscleProp, muscleTableName,muscleActions,muscleSelector,musclePowerSelector, muscleTimeSelector,muscleCycleSelector } from '../redux/slices/muscleSlice';
 import { useAppDispatch } from '../hook/hook';
 import {BleManager} from 'react-native-ble-plx'
 import base64 from 'react-native-base64';
 import { useSelector } from 'react-redux';
 import LineChartMade from '../components/LineChart';
-import {LineChart, YAxis,XAxis} from 'react-native-svg-charts';
-import { PricingButton } from 'react-native-elements/dist/pricing/PricingCard';
-import { ScrollView } from 'react-native-gesture-handler';
-import {fftSelector,fftActions, fftInterface, fftProp, createFftTable,fftTableName,createFft, deleteFftByPosition,dropFftTable,fftFrequencySelector,fftMagnitudeSelector, fftMagnitudePowerSelector,fftMagnitudeLessThanAThousandSelector } from '../redux/slices/fftSlice';
+import {fftSelector,fftActions, fftInterface, fftProp, createFftTable,fftTableName,createFft, deleteFftByPosition,dropFftTable,fftFrequencySelector,fftMagnitudeSelector, fftMagnitudePowerSelector,fftMagnitudeLessThanAThousandSelector, fftMagnitudeSumSelector } from '../redux/slices/fftSlice';
 import { db } from '../redux/slices/databaseSlice';
-import { insertMuscleApi } from '../api/muscleApi';
-import { insertMusclePositionApi } from '../api/musclePositionApi';
-const transactionId ="moniter";
 
 const MuscleDetailScreen: FC = () => {
     const route = useRoute<RootRouteProps<'MuscleDetail'>>();
@@ -32,43 +26,13 @@ const MuscleDetailScreen: FC = () => {
     const [characteristicArray, setCharacteristicArrays] = useState<any>([]);
     const [text1,setText1] = useState('');
     const [device, setDevice] = useState<any>(null);
-    const [musclePowers,setMusclePower] = useState<any>([]);
-    const [startTime,setStartTime] = useState<any>(null);
-    const [endTime,setEndTime] = useState<any>(null);
 
     const muscle = useSelector(muscleSelector);
     const musclePowerList = useSelector(musclePowerSelector);
-    const muscelTimePowerList = useSelector(muscleTimeSelector);
 
     const fftList = useSelector(fftSelector);
-    const fftFrequnecy:any = useSelector(fftFrequencySelector);
-    const fftMagnitude:any = useSelector(fftMagnitudeSelector);
-    const fftMagnitudePower:any = useSelector(fftMagnitudePowerSelector);
-    const fftMagnitudeLessThanAThousand:any = useSelector(fftMagnitudeLessThanAThousandSelector);
-
-    useEffect(()=>{
-        // console.log(fftMagnitudePower);
-        // console.log(fftMagnitudeLessThanAThousand);
-        // var fft = require('fft-js').fft,
-        // fftUtil = require('fft-js').util,
-
-        // signal = [1,0.5,0,0.5,1,0,1,0];
-
-        // var phasors = fft(signal);
-
-        // console.log(phasors);
-        
-        // var frequencies = fftUtil.fftFreq(phasors, 4), // Sample rate and coef is just used for length, and frequency step
-        // magnitudes = fftUtil.fftMag(phasors);
-
-        // console.log(frequencies);
-        // var both = frequencies.map(function (f:any, ix:any) {
-        //     return {frequency: f, magnitude: magnitudes[ix]};
-        // });
-        // console.log(both);
-    },[]);
-
-   
+    const fftMagnitudeSum:any = useSelector(fftMagnitudeSumSelector);
+    const cycle:any = useSelector(muscleCycleSelector);
 
     useEffect(()=>{
         const init = async() => {
@@ -76,9 +40,10 @@ const MuscleDetailScreen: FC = () => {
             await getAllMuscleList(null);
             await createFftTable();
             await getAllFftList(null);
+            setText1("이름이 HC-06인 아두이노를 연결해주세요.")
         }
-        init();
         
+        init();
         _BleManager.current = new BleManager();
         if (Platform.OS === 'android' && Platform.Version >= 23) {
             PermissionsAndroid.requestMultiple([PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,  
@@ -118,7 +83,6 @@ const MuscleDetailScreen: FC = () => {
     },[]);
 
     useEffect(()=>{
-        // console.log(muscle.position);
         if(musclePowerList.length > 0 ){
             if(musclePowerList.length == 512){
                 var fft = require('fft-js').fft;
@@ -128,12 +92,11 @@ const MuscleDetailScreen: FC = () => {
                 if (fftList.array.length == 0){
                     for(var i = 0; i < musclePowerList.length / divide; i++){
                         var temp = musclePowerList.slice(divide*i, divide*(i+1))
-                        // console.log(temp);
+
                         var phasors = fft(temp);
                         var frequencies = fftUtil.fftFreq(phasors, 16), // Sample rate and coef is just used for length, and frequency step
                         magnitudes = fftUtil.fftMag(phasors);
                         
-                        // console.log(frequencies);
                         var both = frequencies.map(function (f:any, ix:any) {
                             return {frequency: f, magnitude: magnitudes[ix]};
                         });
@@ -159,17 +122,19 @@ const MuscleDetailScreen: FC = () => {
                 getAllFftList(null);
             }
         }
-    },[fftList.result]);
+    },[musclePowerList]);
 
     // 종료 시 발동, 뒤로가기 누르거나, 리로드 하면 발동
     useEffect(() => {
         return () => {
-            console.log('BleManager destroy');
             _BleManager.current.destroy();
+            setDeviceid('');
+            setServiceUUID('');
+            setCharacteristicsUUID('');
+            setText1('테스트 종료');
+            setCharacteristicArrays([]);
          };
-    }, []);
-
-    
+    }, []);    
 
     const getAllMuscleList = (returnMessage: string | null) => {
         try{
@@ -190,7 +155,6 @@ const MuscleDetailScreen: FC = () => {
                     dispatch(muscleActions.getAllMuscle(data));
                   }
                 ,(error: any)=>{
-                    console.log(error);
                     tempResult = [];
                     tempMessage = error;
                     const data: Muscle = {position : tempResult, result : tempMessage} as Muscle;
@@ -212,7 +176,6 @@ const MuscleDetailScreen: FC = () => {
                   `SELECT strftime("%Y-%m-%d %H:%M:%f", created) as created,id,musclePositionId,power,arrIndex,arrInsideIndex,isFrequency FROM ${fftTableName} where musclePositionId = ${musclePositionId}`,
                   [],
                   (tx, results) => {
-                    console.log('getAllFftList success');
                     tempMessage = 'success';
                     if(results.rows.length > 0 ){
                         var temp: fftProp[] = [];
@@ -228,8 +191,6 @@ const MuscleDetailScreen: FC = () => {
                     }
                   }
                 ,(error: any)=>{
-                    console.log('getAllFftList error')
-                    console.log(error);
                     tempResult = [];
                     tempMessage = error;
                     const data: fftInterface = {array : tempResult, result : tempMessage} as fftInterface;
@@ -257,12 +218,10 @@ const MuscleDetailScreen: FC = () => {
                                     tempMessage = 'Data Inserted Success';
                                     // getAllMuscleList(tempMessage);
                                 } else {
-                                    console.log('Data Inserted Failed....');
                                     tempMessage = 'Data Inserted Failed';
                                     // getAllMuscleList(tempMessage);
                                 }
                             },(error: any) => {
-                                console.log(error);
                                 tempMessage = error;
                                 // getAllMuscleList(tempMessage);
                             });
@@ -270,7 +229,6 @@ const MuscleDetailScreen: FC = () => {
                         getAllMuscleList(null)
                         disconnect();
                         getAllFftList(null);
-                        insertMuscleApi(muscle.position,positionName);
                       }
                     }
                 )  
@@ -292,8 +250,7 @@ const MuscleDetailScreen: FC = () => {
                         deleteFftByPosition(musclePositionId);
                         getAllFftList(null);
                     } else {
-                        console.log('Data deleted Failed....');
-                        tempMessage = 'Data deleted success';
+                        tempMessage = 'Data deleted fail';
                         getAllMuscleList(tempMessage);
                     }
                 },(error: any) => {
@@ -383,7 +340,7 @@ const MuscleDetailScreen: FC = () => {
                 setDeviceid('');
                 setServiceUUID('');
                 setCharacteristicsUUID('');
-                setText1('');
+                setText1("이름이 HC-06인 아두이노를 연결해주세요.")
                 setCharacteristicArrays([]);
             })
             .catch((err)=>console.log("error on cancel connection",err))
@@ -391,29 +348,33 @@ const MuscleDetailScreen: FC = () => {
     }
 
     const readData = async(device:any) => {
-        setText1('saving Datas...');
+        setText1('512개의 데이터 저장중...');
         if(characteristicArray.isNotifiable === true){
             characteristicArray.monitor((err: any, update: any) => {
                 if (err) {
                     console.log(`characteristic error: ${err}`);
                     console.log(JSON.stringify(err));
                 } else {
-                    // console.log(update.value);
                     var data = parseInt(base64.decode(update.value));
                     console.log(data);
                     if(data != null && typeof data == "number"){
-                        createMuscle(musclePositionId,data);
+                        if(data > 400){
+                            createMuscle(musclePositionId,data);
+                        }
+                        else{
+                            createMuscle(musclePositionId,0);
+                        }
                     }
                 }
-            });
+            }); 
         }
     }
 
 
     const scanAndConnect = async () =>{
-        setText1("Scanning...");
+        setText1("스캔 중...");
         _BleManager.current.startDeviceScan(null, null, (error, device:any) => {
-            console.log("Scanning... start Device Scanning...");
+            console.log("스캔 중... 장치 스캔 시작...");
             if (null) {
                 console.log('null')
             }
@@ -429,7 +390,7 @@ const MuscleDetailScreen: FC = () => {
             {
                 if(device.name == 'HC-06'){
                     const serviceUUIDs= device.serviceUUIDs[0]
-                    setText1(`Connecting to ${device.name}`);
+                    setText1(`${device.name}에 연결중...`);
                     _BleManager.current.stopDeviceScan();
                     _BleManager.current.connectToDevice(device.id, {autoConnect:true,requestMTU:50}).then((device) => {
                         (async () => {
@@ -442,7 +403,7 @@ const MuscleDetailScreen: FC = () => {
                             setCharacteristicsUUID(characteristic.uuid);
                             setDevice(device);
                             setCharacteristicArrays(notifiableCharacteristic);
-                            setText1(`Connected to ${device.name}`);
+                            setText1(`${device.name}에 연결됨.`);
                         })();
                         setDevice(device);
                         return device.discoverAllServicesAndCharacteristics()
@@ -463,7 +424,7 @@ const MuscleDetailScreen: FC = () => {
     <SafeAreaView style={styles.container}>
         <View style={{flex : 10}}>
             <Text style={styles.positionNameStyle}> {positionName}</Text>
-            <Text style={styles.appName}>MuscleDetailScreen </Text>
+            <Text style={styles.appName}>근육 상세</Text>
             <View>
                 {deviceid ? 
                     (
@@ -495,7 +456,7 @@ const MuscleDetailScreen: FC = () => {
                 }}>
                     <Text>근육 데이터 삭제</Text>
                 </TouchableOpacity> 
-                <TouchableOpacity onPress={()=>{deleteFftByPosition(musclePositionId); getAllFftList(null);}} style={
+                {/* <TouchableOpacity onPress={()=>{deleteFftByPosition(musclePositionId); getAllFftList(null);}} style={
                 {
                     position:'absolute',
                     borderColor: '#000000',
@@ -504,10 +465,10 @@ const MuscleDetailScreen: FC = () => {
                     alignSelf: 'center', 
                 }}>
                     <Text>fft 데이터 삭제</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
             </View>
             <View style={{alignItems:'center',marginVertical : 10}}>
-                <Text>{text1}</Text>
+                <Text style={{top: 20}}>{text1}</Text>
 
                 {musclePowerList.length > 0 ? 
                     <View style={{
@@ -525,8 +486,16 @@ const MuscleDetailScreen: FC = () => {
                 :
                     null
                 }
+                {
+                    cycle > 0 ? <Text style={{top: 20}}> 주기 : {cycle} 회 </Text>
+                    : null
+                }
+                {
+                    fftMagnitudeSum > 0 ? <Text style={{top: 30}}> 근육 활용도 : {fftMagnitudeSum}</Text> 
+                    : null
+                }
             </View>
-            <View style={{padding: 10, flex: 1}}>
+            {/* <View style={{padding: 10, flex: 1}}>
                 <ScrollView style={{flex: 1}} key={null} >
                 {
                     (fftFrequnecy != undefined && fftFrequnecy.length > 0) && (fftMagnitude != undefined && fftMagnitude.length > 0)
@@ -562,7 +531,7 @@ const MuscleDetailScreen: FC = () => {
                     : null
                 }
                 </ScrollView>
-            </View>
+            </View> */}
         </View>
         <View style={{flex : 1, flexWrap:'wrap', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', alignContent:'center'}}>
             <TouchableOpacity onPress={()=>scanAndConnect()} style={styles.touchableOpacityButton}>

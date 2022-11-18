@@ -1,4 +1,4 @@
-import { createSlice,PayloadAction,createAsyncThunk, createSelector } from "@reduxjs/toolkit";
+import { createSlice, createSelector } from "@reduxjs/toolkit";
 import { RootState } from "../store/store";
 import { db } from "./databaseSlice";
 export interface fftProp {
@@ -20,18 +20,6 @@ export const initialState : fftInterface = {
     array: [],
     result: null
 }
-
-// export const db = SQLite.openDatabase({
-//     name: 'local.db',
-//     createFromLocation: '~www/local.db',
-//     location:'Library'
-//   },
-//   () => {
-//     console.log('불러오기 성공');
-//   },
-//   error => {
-//     console.log(error);
-// });
 
 const fftSlice = createSlice({
     name: 'fft',
@@ -161,6 +149,20 @@ Object.values(fft.array.reduce((acc:any, item:fftProp) => {
     return acc;
 }, {})) : []);
 
+export const fftMagnitudeSumSelector = createSelector(
+    fftSelector,
+    (fft: fftInterface) =>  
+    fft.array.length > 0 ? 
+        fft.array.reduce((acc:number, item:fftProp) => {
+            if (item.isFrequency == 0){
+                if (parseInt(item.power) > 1000){
+                    acc += parseInt(item.power);
+                }
+            }
+            return acc;
+        }, 0)
+    : 0);
+
 export const fftMagnitudeLessThanAThousandSelector = createSelector(fftSelector,(fft: fftInterface) =>  fft.array.length > 0 ? 
 Object.values(fft.array.reduce((acc:any, item:fftProp) => {
     if (!acc[item.arrIndex]) acc[item.arrIndex] = [];
@@ -180,50 +182,6 @@ Object.values(fft.array.reduce((acc:any, item:fftProp) => {
     }
     return acc;
 }, {})) : []);
-
-export const fftMaginitudeClassficationSelector = createSelector(
-    fftMagnitudeLessThanAThousandSelector, (fftMagintudeZeroAndOne: any) => {
-        Object.values(fftMagintudeZeroAndOne.reduce((acc:any, item:number[],index:number) => {
-            if (item == [0,1,0,0,0,0,0]){
-                if(!acc['noWorkingOut']) acc['noworkingOut'] = 0    
-                acc['noWorkingOut'] += 1
-            }
-        },{}))
-    }
-);
-
-
-
-// export const fftMagnitudePowerCycleSelector = createSelector(
-//     fftMagnitudeLessThanAThousandSelector,
-//     fftMagnitudePowerSelector, (fftMagintudeZeroAndOne:any, fftMaginitudePower:any) =>   
-//     Object.values(fftMagintudeZeroAndOne.reduce((acc:any, item:number[],index:number) => {
-//         const isAllZero = item.every(item2 => item2 === 0);
-//         if(!acc['cycle']) acc['cycle'] = 0
-//         if(!acc['positive']) acc['positive'] = 0
-//         if(!acc['negative']) acc['negative'] = 0
-
-//         var positive = acc['positive'] ? acc['positive'] : 0;
-//         var negative = acc['negative'] ? acc['negative'] : 0;
-//         var cycle:number = acc['cycle'] ? acc['cycle'] : 0;
-
-//         if(!isAllZero){
-//             positive += 1;
-//             if(!acc[cycle]){
-//                 acc[cycle] = fftMaginitudePower[index]
-//             }else{
-//                 acc[cycle] += fftMaginitudePower[index]
-//             }
-//         }else{
-//             negative += 1;
-//         }
-        
-//         return acc;
-//     },0))
-// );
-
-
-
 
 
 export const fftActions = fftSlice.actions;
