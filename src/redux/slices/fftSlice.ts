@@ -42,7 +42,6 @@ export const createFftTable = () => {
     db.transaction(function (txn) {
         txn.executeSql(`SELECT * FROM sqlite_master WHERE type='table' AND name='${fftTableName}'`,[],
             function (tx, res) {
-                console.log('make fft table :'+ res.rows.length);
                 if (res.rows.length == 0) {
                     txn.executeSql(`DROP TABLE IF EXISTS ${fftTableName}`, []);
                     txn.executeSql(
@@ -60,7 +59,6 @@ export const createFftTable = () => {
                 }
                 
             },(error)=>{
-                console.log('fft table make error');
                 console.log(error);
             }
         );
@@ -76,20 +74,16 @@ export const createFft = (musclePositionId: number,power:number,arrIndex:number,
             tx.executeSql(`INSERT INTO ${fftTableName} (musclePositionId,arrIndex,power,arrInsideIndex,isFrequency) VALUES (?,?,?,?,?)`,[musclePositionId,arrIndex,power,arrInsideIndex,isFrequency],
             (tx1,results)=>{
                 if (results.rowsAffected > 0) {
-                    console.log('fft Data insert Success');
                     tempMessage = 'Data Inserted Success';
                 } else {
-                    console.log('Data Inserted Failed....');
                     tempMessage = 'Data Inserted Failed';
                 }
             },(error: any) => {
-                console.log('createFFTError')
                 console.log(error);
                 tempMessage = error;
             });
         })
     }catch(error:any){
-        console.log('fft error');
         console.log(error);
     }
 };
@@ -100,9 +94,7 @@ export const deleteFftByPosition = (musclePositionId: number) =>{
             tx.executeSql(`DELETE from ${fftTableName} where musclePositionId = ${musclePositionId}`,[],
             (tx,results)=>{
                 if (results.rowsAffected > 0) {
-                    console.log('fft delete success');
                 } else {
-                    console.log('fft Data deleted Failed....');
                 }
             },(error: any) => {
                 console.log(error);
@@ -117,14 +109,10 @@ export const dropFftTable = () => {
     db.transaction(function (txn) {
         txn.executeSql(`SELECT * FROM sqlite_master WHERE type='table' AND name='${fftTableName}'`,[],
             function (tx, res) {
-                console.log('make fft table :'+ res.rows.length);
                 if (res.rows.length == 1) {
-                    console.log('drop table success');
                     txn.executeSql(`DROP TABLE IF EXISTS ${fftTableName}`, []);
                 }
             },(error)=>{
-                console.log('fft table drop error');
-                console.log(error);
             }
         );
     })

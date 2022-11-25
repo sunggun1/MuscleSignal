@@ -84,7 +84,7 @@ const MuscleDetailScreen: FC = () => {
 
     useEffect(()=>{
         if(musclePowerList.length > 0 ){
-            if(musclePowerList.length == 512){
+            if(musclePowerList.length == 256){
                 var fft = require('fft-js').fft;
                 var fftUtil = require('fft-js').util;
                 
@@ -211,7 +211,7 @@ const MuscleDetailScreen: FC = () => {
                     `SELECT * FROM ${muscleTableName} where musclePositionId = ${musclePositionId}`,
                     [],
                     (tx, results) => {
-                      if (results.rows.length < 512){
+                      if (results.rows.length < 256){
                         tx.executeSql(`INSERT INTO ${muscleTableName} (musclePositionId,power) VALUES (?,?)`,[musclePositionId,power],
                             (tx,results)=>{
                                 if (results.rowsAffected > 0) {
@@ -348,7 +348,7 @@ const MuscleDetailScreen: FC = () => {
     }
 
     const readData = async(device:any) => {
-        setText1('512개의 데이터 저장중...');
+        setText1('256개의 데이터 저장중...');
         if(characteristicArray.isNotifiable === true){
             characteristicArray.monitor((err: any, update: any) => {
                 if (err) {
