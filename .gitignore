@@ -63,7 +63,6 @@ buck-out/
 /vendor/bundle/
 
 #terraform
-/terraform
 
 # Local .terraform directories
 /terraform/**/.terraform/*
