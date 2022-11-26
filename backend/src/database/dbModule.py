@@ -2,7 +2,7 @@ import pymysql
 
 class Database():
     def __init__(self):
-        self.db = pymysql.connect(host='terraform-20221103031822744200000001.cj4hsozsjwj8.ap-northeast-2.rds.amazonaws.com',
+        self.db = pymysql.connect(host='',
                                   user='admin',
                                   password='password',
                                   db='mydb',
