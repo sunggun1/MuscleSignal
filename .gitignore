@@ -64,5 +64,5 @@ buck-out/
 
 #terraform
 /terraform/.terraform.lock.hcl
-/terraform/.terraform
+**/.terraform/*
 /terraform/env
