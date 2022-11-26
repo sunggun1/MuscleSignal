@@ -64,6 +64,7 @@ buck-out/
 
 #terraform
 /terraform
+
 # Local .terraform directories
 /terraform/**/.terraform/*
 /terraform/.terraform/*
