@@ -2,7 +2,7 @@
 
 React Native muscle utilization rate App
 
-My team used a ble communication from a arduino uno sensor.
+My team used a ble communication from an arduino uno sensor.
 
 We used react native app, aws ec2 with terraform, python flask.
 My team wanted to use AI for linear pattern recognition.
