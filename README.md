@@ -11,7 +11,8 @@ I found some github open source. but they weren't that good.
 I didn't know how to apply and change it for my code.
 I only made whole software by myself. Time wasn't enough to make even AI.
 this app is uploaded on appstore
-앱스토어에 등록된 머슬 시그널 한이음 공모전 앱입니다.
+
+react-native, typescript를 이용한 앱스토어에 등록된 머슬 시그널 한이음 공모전 앱입니다.
 
 https://apps.apple.com/kr/app/%EB%A8%B8%EC%8A%AC%EC%8B%9C%EA%B7%B8%EB%84%90-%EA%B7%BC%EC%9C%A1%ED%99%9C%EC%9A%A9%EB%8F%84-%EC%B8%A1%EC%A0%95-%EC%96%B4%ED%94%8C/id6444481709
 
