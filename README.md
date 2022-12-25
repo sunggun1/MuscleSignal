@@ -12,6 +12,7 @@ I didn't know how to apply and change it for my code.
 I only made whole software by myself. Time wasn't enough to make even AI.
 this app is uploaded on appstore.
 
+https://apps.apple.com/kr/app/%EB%A8%B8%EC%8A%AC%EC%8B%9C%EA%B7%B8%EB%84%90-%EA%B7%BC%EC%9C%A1%ED%99%9C%EC%9A%A9%EB%8F%84-%EC%B8%A1%EC%A0%95-%EC%96%B4%ED%94%8C/id6444481709
 
 
 ![IMG_0010](https://user-images.githubusercontent.com/17981550/204071764-6c73fe65-5735-4d19-bda4-3acf172de71e.PNG)
