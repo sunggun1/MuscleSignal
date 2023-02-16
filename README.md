@@ -3,7 +3,7 @@
 
 사용 기술
 
-프론트 : react native, redux, typescript
+프론트 : react native, redux toolkit, typescript
 
 백엔드 : python flask
 
