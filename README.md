@@ -13,7 +13,7 @@ React Native muscle utilization rate App
 (리액트 네이티브를 이용한 근유 활용도 앱입니다.)
 
 My team used a ble communication from an arduino uno sensor.
-(아두이노 우노 센서에서 블루투스 통신을 통해 데이터르 가져왔습니다.)
+(아두이노 우노 센서에서 블루투스 통신을 통해 데이터를 가져왔습니다.)
 
 We used react native app, aws ec2 with terraform, python flask. 
 (react native, terraform을 이용한 aws ec2, python flask 백엔드를 사용했습니다.)
