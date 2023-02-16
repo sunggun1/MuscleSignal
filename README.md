@@ -32,13 +32,21 @@ this app is uploaded on appstore
 찾아본 사이트 기술들 (What I searched for)
 
 https://www.smallake.kr/wp-content/uploads/2014/09/DTW.pdf
+
 https://medium.com/walmartglobaltech/time-series-similarity-using-dynamic-time-warping-explained-9d09119e48ec
+
 https://github.com/alexminnaar/time-series-classification-and-clustering
+
 https://www.youtube.com/watch?app=desktop&v=RCdTVy1xcek&list=PLQVvvaa0QuDe6ZBtkCNWNUbdaBo2vA4RO&index=8
+
 https://towardsdatascience.com/stumpy-basics-21844a2d2d92
+
 https://towardsdatascience.com/finding-cyclic-patterns-a-tutorial-on-how-to-implement-stft-in-python-e93cea9efd5a
+
 https://github.com/vinayakumarr/Signal-Processing-and-Pattern-Classification
+
 https://github.com/gsubramani/SignalRecognition
+
 https://github.com/guillaume-chevalier/seq2seq-signal-prediction
 
 
