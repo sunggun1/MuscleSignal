@@ -26,7 +26,7 @@ I only made whole software by myself. Time wasn't enough to make even AI.
 this app is uploaded on appstore
 
 (AI를 빅데이터란 과목으로 학교에서 기본을 배워서 ec2를 사용하여 선형 패턴 인식 알고리즘을 찾아서 AI를 돌리고 싶었는데 오픈소스를 가져와서 저희 프로젝트에 적용 및 구현하기가 너무 어려웠습니다. 
-다른 AI 기법을 사용하려고 하니 어떤 AI 알고리즘을 사용해야 하는지 몰라서 멘토님의 조언으로 fft 알고리즘을 이용하여 개발했습니다.)
+다른 AI 기법을 사용하려고 하니 어떤 AI 알고리즘을 사용해야 하는지 몰라서 멘토님의 조언으로 비슷하게라도 fft 알고리즘을 이용하여 개발했습니다.)
 
 
 찾아본 사이트 기술들 (What I searched for)
