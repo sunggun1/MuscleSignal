@@ -1,9 +1,12 @@
 # MuscleSignal
 전자공학과 3명, 컴퓨터공학과 1명에서 진행했습니다.
 
-사용 기술 :
+사용 기술
+
 프론트 : react native, redux, typescript
+
 백엔드 : python flask
+
 서버 : terraform aws ec2, rds
 
 React Native muscle utilization rate App
@@ -17,10 +20,24 @@ We used react native app, aws ec2 with terraform, python flask.
 
 My team wanted to use AI for linear pattern recognition.
 But it was so hard to find and make new one. 
-I found some github open source. but they weren't that good. 
+I found some github open source. but they weren't that good.
 I didn't know how to apply and change it for my code.
 I only made whole software by myself. Time wasn't enough to make even AI.
 this app is uploaded on appstore
+(AI를 빅데이터란 과목으로 학교에서 기본을 배워서 ec2를 사용하여 선형 패턴 인식 알고리즘을 찾아서 AI를 돌리고 싶었는데 오픈소스를 가져와서 저희 프로젝트에 적용 및 구현하기가 너무 어려웠습니다. 
+다른 AI 기법을 사용하려고 하니 어떤 AI 알고리즘을 사용해야 하는지 몰라서 멘토님의 조언으로 fft 알고리즘을 이용하여 개발했습니다.)
+
+찾아본 사이트 기술들 (What I searched) 
+https://www.smallake.kr/wp-content/uploads/2014/09/DTW.pdf
+https://medium.com/walmartglobaltech/time-series-similarity-using-dynamic-time-warping-explained-9d09119e48ec
+https://github.com/alexminnaar/time-series-classification-and-clustering
+https://www.youtube.com/watch?app=desktop&v=RCdTVy1xcek&list=PLQVvvaa0QuDe6ZBtkCNWNUbdaBo2vA4RO&index=8
+https://towardsdatascience.com/stumpy-basics-21844a2d2d92
+https://towardsdatascience.com/finding-cyclic-patterns-a-tutorial-on-how-to-implement-stft-in-python-e93cea9efd5a
+https://github.com/vinayakumarr/Signal-Processing-and-Pattern-Classification
+https://github.com/gsubramani/SignalRecognition
+https://github.com/guillaume-chevalier/seq2seq-signal-prediction
+
 
 react-native, redux toolkit, typescript를 이용한 앱스토어에 등록된 머슬 시그널 한이음 공모전 앱입니다.
 
